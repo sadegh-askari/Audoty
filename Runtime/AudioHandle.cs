@@ -18,7 +18,7 @@ namespace Audoty
             ClipIndex = clipIndex;
             _id = id;
             _player = player;
-            _completionTime = Time.time + _player.Clips[clipIndex].length;
+            _completionTime = Time.time + (_player == null ? 0 : _player.Clips[ClipIndex].length);
         }
         
         public int ClipIndex { get; }
