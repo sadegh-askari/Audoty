@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Audio;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 #if ODIN_INSPECTOR
@@ -25,6 +26,12 @@ namespace Audoty
         [ReorderableList]
 #endif
         [SerializeField] private List<AudioClip> _clips;
+        
+#if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
+        [BoxGroup("Parameters")]
+#endif
+        [SerializeField]
+        private AudioMixerGroup _audioMixer;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
@@ -611,6 +618,8 @@ namespace Audoty
 
             if (!live || _liveLinkDopplerLevel)
                 source.dopplerLevel = _dopplerLevel;
+
+            source.outputAudioMixerGroup = _audioMixer;
         }
 
 #if UNITY_EDITOR
