@@ -93,7 +93,7 @@ namespace Audoty
         }
 #endif
 
-        private void Awake()
+        protected virtual void Awake()
         {
 #if ADDRESSABLES
             if (_referenceMode == ReferenceMode.DirectReference)

@@ -13,8 +13,9 @@ namespace Audoty
         private Selectable _selectable;
         private bool _play;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _selectable = GetComponent<Selectable>();
         }
 
