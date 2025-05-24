@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using Singleton.AudioManager;
 using UnityEngine;
 using UnityEngine.Audio;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
-
 #elif NAUGHTY_ATTRIBUTES
 using NaughtyAttributes;
 #endif
@@ -26,7 +26,7 @@ namespace Audoty
         [ReorderableList]
 #endif
         [SerializeField] private List<AudioClip> _clips;
-        
+
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
@@ -42,10 +42,10 @@ namespace Audoty
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [SerializeField] 
+        [SerializeField]
         [Tooltip("When live link is enabled, changes to the parameter will apply to existing/live audio sources.")]
         private bool _liveLinkLoop = true;
-        
+
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
@@ -65,7 +65,8 @@ namespace Audoty
         [ShowIf(nameof(_singleton))]
 #endif
         [SerializeField]
-        [Tooltip("When true, a live singleton audio source will be interrupted to play a new clip (from the same Audio Player)")]
+        [Tooltip(
+            "When true, a live singleton audio source will be interrupted to play a new clip (from the same Audio Player)")]
         private bool _allowInterrupt = true;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
@@ -78,7 +79,7 @@ namespace Audoty
         [BoxGroup("Parameters")]
 #endif
         [Space]
-        [SerializeField] 
+        [SerializeField]
         [Range(0, 1)]
         private float _volume = 1;
 
@@ -98,7 +99,8 @@ namespace Audoty
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [Space] [SerializeField]
+        [Space]
+        [SerializeField]
         private float _minDistance = 1;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
@@ -110,7 +112,8 @@ namespace Audoty
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [SerializeField] [Tooltip("When live link is enabled, changes to the parameter will apply to existing/live audio sources.")]
+        [SerializeField]
+        [Tooltip("When live link is enabled, changes to the parameter will apply to existing/live audio sources.")]
         private bool _liveLinkDistances = true;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
@@ -143,13 +146,15 @@ namespace Audoty
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [Space] [SerializeField]
+        [Space]
+        [SerializeField]
         private float _dopplerLevel;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [SerializeField] [Tooltip("When live link is enabled, changes to the parameter will apply to existing/live audio sources.")]
+        [SerializeField]
+        [Tooltip("When live link is enabled, changes to the parameter will apply to existing/live audio sources.")]
         private bool _liveLinkDopplerLevel = true;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
@@ -161,14 +166,17 @@ namespace Audoty
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
-        [Space] [SerializeField] [Tooltip("Volume fade-in time when AudioPlayer plays an audio")]
+        [Space]
+        [SerializeField]
+        [Tooltip("Volume fade-in time when AudioPlayer plays an audio")]
         private float _playFadeTime;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
         [BoxGroup("Parameters")]
 #endif
         [SerializeField]
-        [Tooltip("When AudioPlayer gets interrupted (stopped mid playing), instead of cutting the audio, audio will fade out")]
+        [Tooltip(
+            "When AudioPlayer gets interrupted (stopped mid playing), instead of cutting the audio, audio will fade out")]
         private float _interruptFadeTime = 0.2f;
 
 #if ODIN_INSPECTOR || NAUGHTY_ATTRIBUTES
@@ -619,14 +627,15 @@ namespace Audoty
             if (!live || _liveLinkDopplerLevel)
                 source.dopplerLevel = _dopplerLevel;
 
-            source.outputAudioMixerGroup = _audioMixer;
+            if (AudioManager.Instance != null)
+                source.outputAudioMixerGroup = AudioManager.Instance.GetAudioMixerGroup(_audioMixer.name);
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             ClipNames = _clips?.Select(x => x.name).ToArray();
-            
+
             CheckSaveKeyConflict();
 
             ReconfigurePlayingAudioSources();
@@ -636,7 +645,7 @@ namespace Audoty
         {
             while (_randomizedSaveKey == 0)
                 _randomizedSaveKey = Random.Range(int.MinValue + 1, int.MaxValue - 1);
-            
+
             // Remove all entries which their audio player has been destroyed
             int[] keysToRemove = SaveKeys
                 .Where(x => x.Value == null)
